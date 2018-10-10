@@ -1,66 +1,62 @@
 package ru.javawebinar.topjava.dao.impl;
 
-import ru.javawebinar.topjava.dao.Dao;
 import ru.javawebinar.topjava.model.Meal;
 
 import java.time.LocalDateTime;
 import java.time.Month;
-import java.util.ArrayList;
-import java.util.List;
-
-import static java.util.stream.Collectors.toList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 /**
  * Created by User on 08.10.2018.
  */
-public class MemoryMealDao implements Dao {
-    private static class Counter {
-        private static int count;
+public class MemoryMealDao {
+    private final AtomicInteger id = new AtomicInteger(1);
 
-        public static synchronized int getNext() {
-            return count++;
-        }
+    private int getNext() {
+        return id.getAndIncrement();
     }
 
-    private List<Meal> meals = new ArrayList<>();
+    private Map<Integer, Meal> meals = Arrays.asList(
+            new Meal(getNext(), LocalDateTime.of(2015, Month.MAY, 28, 10, 0), "Завтрак", 500),
+            new Meal(getNext(), LocalDateTime.of(2015, Month.MAY, 28, 13, 0), "Обед", 1000),
+            new Meal(getNext(), LocalDateTime.of(2015, Month.MAY, 28, 20, 0), "Ужин", 500),
+            new Meal(getNext(), LocalDateTime.of(2015, Month.MAY, 29, 10, 0), "Завтрак", 1000),
+            new Meal(getNext(), LocalDateTime.of(2015, Month.MAY, 29, 13, 0), "Обед", 500),
+            new Meal(getNext(), LocalDateTime.of(2015, Month.MAY, 29, 20, 0), "Ужин", 510),
+            new Meal(getNext(), LocalDateTime.of(2015, Month.MAY, 30, 10, 0), "Завтрак", 500),
+            new Meal(getNext(), LocalDateTime.of(2015, Month.MAY, 30, 13, 0), "Обед", 1000),
+            new Meal(getNext(), LocalDateTime.of(2015, Month.MAY, 30, 20, 0), "Ужин", 500),
+            new Meal(getNext(), LocalDateTime.of(2015, Month.MAY, 31, 10, 0), "Завтрак", 1000),
+            new Meal(getNext(), LocalDateTime.of(2015, Month.MAY, 31, 13, 0), "Обед", 500),
+            new Meal(getNext(), LocalDateTime.of(2015, Month.MAY, 31, 20, 0), "Ужин", 510)
+    ).stream()
+            .collect(Collectors.toConcurrentMap(Meal::getId, meal -> meal));
 
-    {
-        meals.add(new Meal(Counter.getNext(), LocalDateTime.of(2015, Month.MAY, 28, 10, 0), "Завтрак", 500));
-        meals.add(new Meal(Counter.getNext(), LocalDateTime.of(2015, Month.MAY, 28, 13, 0), "Обед", 1000));
-        meals.add(new Meal(Counter.getNext(), LocalDateTime.of(2015, Month.MAY, 28, 20, 0), "Ужин", 500));
-        meals.add(new Meal(Counter.getNext(), LocalDateTime.of(2015, Month.MAY, 29, 10, 0), "Завтрак", 1000));
-        meals.add(new Meal(Counter.getNext(), LocalDateTime.of(2015, Month.MAY, 29, 13, 0), "Обед", 500));
-        meals.add(new Meal(Counter.getNext(), LocalDateTime.of(2015, Month.MAY, 29, 20, 0), "Ужин", 510));
-        meals.add(new Meal(Counter.getNext(), LocalDateTime.of(2015, Month.MAY, 30, 10, 0), "Завтрак", 500));
-        meals.add(new Meal(Counter.getNext(), LocalDateTime.of(2015, Month.MAY, 30, 13, 0), "Обед", 1000));
-        meals.add(new Meal(Counter.getNext(), LocalDateTime.of(2015, Month.MAY, 30, 20, 0), "Ужин", 500));
-        meals.add(new Meal(Counter.getNext(), LocalDateTime.of(2015, Month.MAY, 31, 10, 0), "Завтрак", 1000));
-        meals.add(new Meal(Counter.getNext(), LocalDateTime.of(2015, Month.MAY, 31, 13, 0), "Обед", 500));
-        meals.add(new Meal(Counter.getNext(), LocalDateTime.of(2015, Month.MAY, 31, 20, 0), "Ужин", 510));
+
+    public Meal get(Integer id) {
+        return meals.get(id);
     }
 
-    @Override
-    public List<Meal> get() {
-        return meals;
+    public Collection<Meal> getAll() {
+        return meals.values();
     }
 
-    @Override
     public boolean add(Meal meal) {
-        meal.setId(Counter.getNext());
-        return meals.add(meal);
+        Integer id = getNext();
+        meal.setId(id);
+        return meals.put(id, meal) == null;
     }
 
-    @Override
-    public boolean remove(int id) {
-        return meals.removeIf(a -> a.getId() == id);
+    public Meal remove(int id) {
+        return meals.remove(id);
     }
 
-    @Override
-    public void update(Meal newMeal) {
-        meals = meals.stream()
-                .map(old -> old.getId() == newMeal.getId() ? newMeal : old)
-                .collect(toList());
-
+    public boolean update(Meal meal) {
+        return meals.put(meal.getId(), meal) != null;
     }
 }
 

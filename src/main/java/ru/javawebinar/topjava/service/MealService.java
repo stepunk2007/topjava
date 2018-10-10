@@ -1,10 +1,11 @@
 package ru.javawebinar.topjava.service;
 
+import ru.javawebinar.topjava.dao.impl.MemoryMealDao;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.model.MealWithExceed;
-import ru.javawebinar.topjava.dao.impl.MemoryMealDao;
 import ru.javawebinar.topjava.util.MealsUtil;
 
+import java.time.LocalTime;
 import java.util.List;
 
 /**
@@ -14,11 +15,15 @@ public class MealService {
     private MemoryMealDao dao = new MemoryMealDao();
     private final static int CALORIES_PER_DAY = 2000;
 
-    public List<MealWithExceed> getMealWithExceeded() {
-        return MealsUtil.getWithExceeded(dao.get(), CALORIES_PER_DAY);
+    public List<MealWithExceed> getAllWithExceeded() {
+        return MealsUtil.getFilteredWithExceeded(dao.getAll(), LocalTime.MIN, LocalTime.MAX, CALORIES_PER_DAY);
     }
 
-    public void add(Meal meal){
+    public Meal get(Integer id){
+        return dao.get(id);
+    }
+
+    public void add(Meal meal) {
         dao.add(meal);
     }
 
