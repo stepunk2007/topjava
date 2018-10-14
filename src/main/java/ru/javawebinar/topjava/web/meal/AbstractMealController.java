@@ -6,13 +6,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.service.MealService;
 import ru.javawebinar.topjava.to.MealWithExceed;
-import ru.javawebinar.topjava.web.SecurityUtil;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
-import static ru.javawebinar.topjava.util.ValidationUtil.*;
+import static ru.javawebinar.topjava.util.ValidationUtil.assureIdConsistent;
+import static ru.javawebinar.topjava.util.ValidationUtil.checkNew;
 
 /**
  * Created by User on 14.10.2018.
@@ -23,30 +23,29 @@ public class AbstractMealController {
     @Autowired
     private MealService service;
 
-    public List<MealWithExceed> getAll(Integer userId) {
-        return service.getAll(userId, SecurityUtil.authUserCaloriesPerDay());
+    protected Meal get(Integer id, Integer userId) {
+        return service.get(id, userId);
     }
 
-    public List<MealWithExceed> getAllFilteredByDate(int userId, int caloriesPerDay, LocalDate startDate, LocalDate endDate) {
-        return service.getAllFilteredByDate(userId, caloriesPerDay, startDate, endDate);
+    protected List<MealWithExceed> getAll(Integer userId, int caloriesPerDay) {
+        return service.getAll(userId, caloriesPerDay);
     }
 
-    public List<MealWithExceed> getAllFilteredByTime(int userId, int caloriesPerDay, LocalTime startTime, LocalTime endTime) {
-        checkNotNull(startTime, endTime);
-        return service.getAllFilteredByTime(userId, caloriesPerDay, startTime, endTime);
+    protected List<MealWithExceed> getAllFilteredByDateTime(int userId, int caloriesPerDay, LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime) {
+        return service.getAllFilteredByDateTime(userId, caloriesPerDay, startDate, endDate, startTime, endTime);
     }
 
-    public Meal create(Meal meal) {
+    protected Meal create(Meal meal) {
         checkNew(meal);
         return service.create(meal);
     }
 
-    public void delete(int id, Integer userId) {
+    protected void delete(int id, Integer userId) {
         service.delete(id, userId);
     }
 
-    public void update(Meal meal, Integer mealId, Integer userId) {
+    protected void update(Meal meal, Integer mealId) {
         assureIdConsistent(meal, mealId);
-        service.update(meal, userId);
+        service.update(meal);
     }
 }

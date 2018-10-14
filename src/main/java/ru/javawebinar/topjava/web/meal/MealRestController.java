@@ -11,17 +11,16 @@ import java.util.List;
 
 @Controller
 public class MealRestController extends AbstractMealController {
+    public Meal get(Integer id) {
+        return super.get(id, SecurityUtil.authUserId());
+    }
 
     public List<MealWithExceed> getAll() {
-        return super.getAll(SecurityUtil.authUserId());
+        return super.getAll(SecurityUtil.authUserId(), SecurityUtil.authUserCaloriesPerDay());
     }
 
-    public List<MealWithExceed> getAllFilteredByDate(LocalDate startDate, LocalDate endDate) {
-        return super.getAllFilteredByDate(SecurityUtil.authUserId(), SecurityUtil.authUserCaloriesPerDay(), startDate, endDate);
-    }
-
-    public List<MealWithExceed> getAllFilteredByTime(LocalTime startTime, LocalTime endTime) {
-        return super.getAllFilteredByTime(SecurityUtil.authUserId(), SecurityUtil.authUserCaloriesPerDay(), startTime, endTime);
+    public List<MealWithExceed> getAllFiltered(LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime) {
+        return super.getAllFilteredByDateTime(SecurityUtil.authUserId(), SecurityUtil.authUserCaloriesPerDay(), startDate, endDate, startTime, endTime);
     }
 
     public Meal create(Meal meal) {
@@ -34,7 +33,8 @@ public class MealRestController extends AbstractMealController {
     }
 
     public void update(Meal meal, Integer id) {
-        super.update(meal, id, SecurityUtil.authUserId());
+        meal.setUserId(SecurityUtil.authUserId());
+        super.update(meal, id);
     }
 
 }

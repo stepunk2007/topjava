@@ -40,27 +40,29 @@ public class MealServiceImpl implements MealService {
     }
 
     @Override
-    public void update(Meal meal, Integer userId) throws NotFoundException {
-        if (userId != null && userId.equals(meal.getUserId())) {
-            repository.save(meal);
-        } else {
-            checkNotFoundWithId(null, meal.getId());
-        }
-
+    public void update(Meal meal) throws NotFoundException {
+        checkNotFoundWithId(repository.save(meal), meal.getId());
     }
 
     @Override
     public List<MealWithExceed> getAll(Integer userId, int caloriesPerDay) {
-        return MealsUtil.getFilteredWithExceeded(repository.getAllByUserId(userId), caloriesPerDay, LocalTime.MIN, LocalTime.MAX);
+        return MealsUtil.getWithExceeded(repository.getAllByUserId(userId), caloriesPerDay);
     }
 
     @Override
-    public List<MealWithExceed> getAllFilteredByDate(Integer userId, int caloriesPerDay, LocalDate startTime, LocalDate endTime) {
-        return MealsUtil.getFilteredWithExceeded(repository.getAllByUserId(userId), caloriesPerDay, startTime, endTime);
+    public List<MealWithExceed> getAllFilteredByDateTime(Integer userId, int caloriesPerDay, LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime) {
+        List<MealWithExceed> meals = getAll(userId, caloriesPerDay);
+        if (startTime != null || endTime != null) {
+            startTime = startTime == null ? LocalTime.MIN : startTime;
+            endTime = endTime == null ? LocalTime.MAX : endTime;
+            meals = MealsUtil.getFilteredByTime(meals, startTime, endTime);
+        }
+        if (endDate != null || startDate != null) {
+            startDate = startDate == null ? LocalDate.MIN : startDate;
+            endDate = endDate == null ? LocalDate.MAX : endDate;
+            meals = MealsUtil.getFilteredByDate(meals, startDate, endDate);
+        }
+        return meals;
     }
 
-    @Override
-    public List<MealWithExceed> getAllFilteredByTime(Integer userId, int caloriesPerDay, LocalTime startTime, LocalTime endTime) {
-        return MealsUtil.getFilteredWithExceeded(repository.getAllByUserId(userId), caloriesPerDay, startTime, endTime);
-    }
 }

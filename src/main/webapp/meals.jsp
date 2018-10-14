@@ -19,9 +19,18 @@
 <body>
 <section>
     <h3><a href="index.html">Home</a></h3>
-    <h2>Meals</h2>
+    <h2>Meals of user = ${userId}</h2>
     <a href="meals?action=create">Add Meal</a>
     <hr/>
+    <br>
+    <form action="meals" method="get">
+        <input type="hidden" name="action" value="filter" />
+        <input type="date"  value="${startDate}" name="startDate">
+        <input type="date"  value="${endDate}" name="endDate">
+        <input type="time"  value="${startTime}" name="startTime">
+        <input type="time"  value="${endTime}" name="endTime">
+        <button type="submit">Filter</button>
+    </form>
     <table border="1" cellpadding="8" cellspacing="0">
         <thead>
         <tr>
