@@ -38,8 +38,7 @@ public class InMemoryUserRepositoryImpl implements UserRepository {
             repository.put(user.getId(), user);
             return user;
         }
-        repository.computeIfPresent(user.getId(), (id, oldUser) -> user);
-        return user;
+        return repository.computeIfPresent(user.getId(), (id, oldUser) -> user);
     }
 
     @Override

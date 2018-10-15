@@ -39,12 +39,4 @@ public class ValidationUtil {
             throw new IllegalArgumentException(entity + " must be with id=" + id);
         }
     }
-
-    public static void checkNotNull(Object... obj) {
-        for (Object o : obj) {
-            if (o == null) {
-                throw new IllegalArgumentException("parameters must be not null");
-            }
-        }
-    }
 }

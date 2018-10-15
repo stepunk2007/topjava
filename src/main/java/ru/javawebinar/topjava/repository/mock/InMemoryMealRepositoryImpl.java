@@ -3,8 +3,10 @@ package ru.javawebinar.topjava.repository.mock;
 import org.springframework.stereotype.Repository;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.repository.MealRepository;
+import ru.javawebinar.topjava.util.DateTimeUtil;
 import ru.javawebinar.topjava.util.MealsUtil;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,23 +24,23 @@ public class InMemoryMealRepositoryImpl implements MealRepository {
 
     @Override
     public Meal save(Meal meal) {
-        if (meal.getUserId() == null) return null;
         if (meal.isNew()) {
             meal.setId(counter.incrementAndGet());
             repository.put(meal.getId(), meal);
-            return meal;
+            return new Meal(meal);
         }
         Meal oldMeal = repository.get(meal.getId());
         if (oldMeal != null && !oldMeal.getUserId().equals(meal.getUserId())) {
             return null;
         }
         // treat case: update, but absent in storage
-        return repository.computeIfPresent(meal.getId(), (id, oldValue) -> meal);
+        return repository.computeIfPresent(meal.getId(), (id, oldValue) -> new Meal(meal));
     }
 
     @Override
     public boolean delete(int id, Integer userId) {
-        if (repository.get(id) != null && repository.get(id).getUserId().equals(userId)) {
+        Meal meal = repository.get(id);
+        if (meal != null && meal.getUserId().equals(userId)) {
             return repository.remove(id) != null;
         }
         return false;
@@ -51,10 +53,12 @@ public class InMemoryMealRepositoryImpl implements MealRepository {
     }
 
     @Override
-    public Collection<Meal> getAllByUserId(Integer userId) {
+    public Collection<Meal> getAllByUserId(Integer userId, LocalDate startDate, LocalDate endDate) {
         return repository.values().stream()
                 .filter(m -> m.getUserId().equals(userId))
+                .filter(meal -> DateTimeUtil.isBetween(meal.getDateTime().toLocalDate(), startDate, endDate))
                 .sorted((m1, m2) -> m2.getDateTime().compareTo(m1.getDateTime()))
+                .map(Meal::new)
                 .collect(Collectors.toList());
     }
 }
