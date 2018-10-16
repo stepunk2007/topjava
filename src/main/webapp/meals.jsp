@@ -18,8 +18,6 @@
 </head>
 <body>
 <section>
-    <h3><a href="index.html">Home</a></h3>
-    <h2>Meals of user = ${userId}</h2>
     <a href="meals?action=create">Add Meal</a>
     <hr/>
     <br>

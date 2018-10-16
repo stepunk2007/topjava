@@ -24,17 +24,20 @@ public class MealRestController {
     }
 
     public List<MealWithExceed> getAll() {
-        return service.getAll(SecurityUtil.authUserId(), SecurityUtil.authUserCaloriesPerDay(), null, null, null, null);
+        return service.getAll(SecurityUtil.authUserId(), SecurityUtil.authUserCaloriesPerDay());
     }
 
     public List<MealWithExceed> getAll(LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime) {
-        return service.getAll(SecurityUtil.authUserId(), SecurityUtil.authUserCaloriesPerDay(), startDate, endDate, startTime, endTime);
+        return service.getAll(SecurityUtil.authUserId(), SecurityUtil.authUserCaloriesPerDay(),
+                startDate == null ? LocalDate.MIN : startDate,
+                endDate == null ? LocalDate.MAX : endDate,
+                startTime == null ? LocalTime.MIN : startTime,
+                endTime == null ? LocalTime.MAX : endTime);
     }
 
     public Meal create(Meal meal) {
         checkNew(meal);
-        meal.setUserId(SecurityUtil.authUserId());
-        return service.create(meal);
+        return service.create(meal, SecurityUtil.authUserId());
     }
 
     public void delete(int id) {
@@ -43,8 +46,7 @@ public class MealRestController {
 
     public void update(Meal meal, Integer id) {
         assureIdConsistent(meal, id);
-        meal.setUserId(SecurityUtil.authUserId());
-        service.update(meal);
+        service.update(meal, SecurityUtil.authUserId());
     }
 
 }

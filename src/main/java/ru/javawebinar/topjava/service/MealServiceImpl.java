@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.repository.MealRepository;
 import ru.javawebinar.topjava.to.MealWithExceed;
+import ru.javawebinar.topjava.util.DateTimeUtil;
 import ru.javawebinar.topjava.util.MealsUtil;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
@@ -25,8 +26,8 @@ public class MealServiceImpl implements MealService {
     }
 
     @Override
-    public Meal create(Meal meal) {
-        return repository.save(meal);
+    public Meal create(Meal meal, Integer userId) {
+        return repository.save(meal, userId);
     }
 
     @Override
@@ -40,22 +41,24 @@ public class MealServiceImpl implements MealService {
     }
 
     @Override
-    public void update(Meal meal) throws NotFoundException {
-        checkNotFoundWithId(repository.save(meal), meal.getId());
+    public void update(Meal meal, Integer userId) throws NotFoundException {
+        checkNotFoundWithId(repository.save(meal, userId), meal.getId());
+    }
+
+    @Override
+    public List<MealWithExceed> getAll(Integer userId, int caloriesPerDay) {
+        return MealsUtil.getFilteredWithExceeded(
+                repository.getAllByUserId(userId),
+                caloriesPerDay,
+                meal -> true);
     }
 
     @Override
     public List<MealWithExceed> getAll(Integer userId, int caloriesPerDay, LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime) {
-        List<MealWithExceed> meals = MealsUtil.getWithExceeded(
-                repository.getAllByUserId(userId,
-                        startDate == null ? LocalDate.MIN : startDate,
-                        endDate == null ? LocalDate.MAX : endDate),
-                caloriesPerDay);
-        if (startTime != null || endTime != null) {
-            startTime = startTime == null ? LocalTime.MIN : startTime;
-            endTime = endTime == null ? LocalTime.MAX : endTime;
-            meals = MealsUtil.getFilteredByTime(meals, startTime, endTime);
-        }
-        return meals;
+        return MealsUtil.getFilteredWithExceeded(
+                repository.getAllByUserId(userId, startDate, endDate),
+                caloriesPerDay,
+                meal -> DateTimeUtil.isBetween(meal.getDateTime().toLocalTime(), startTime, endTime));
     }
+
 }

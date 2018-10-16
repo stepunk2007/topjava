@@ -5,7 +5,6 @@ import ru.javawebinar.topjava.to.MealWithExceed;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.Month;
 import java.util.Arrays;
 import java.util.Collection;
@@ -40,21 +39,8 @@ public class MealsUtil {
 
     public static final int DEFAULT_CALORIES_PER_DAY = 2000;
 
-    public static List<MealWithExceed> getWithExceeded(Collection<Meal> meals, int caloriesPerDay) {
-        return getFilteredWithExceeded(meals, caloriesPerDay, meal -> true);
-    }
 
-    public static List<MealWithExceed> getFilteredByTime(Collection<MealWithExceed> meals, LocalTime startTime, LocalTime endTime) {
-        return getFiltered(meals, meal -> DateTimeUtil.isBetween(meal.getDateTime().toLocalTime(), startTime, endTime));
-    }
-
-    public static List<MealWithExceed> getFiltered(Collection<MealWithExceed> meals, Predicate<MealWithExceed> filter) {
-        return meals.stream()
-                .filter(filter)
-                .collect(toList());
-    }
-
-    private static List<MealWithExceed> getFilteredWithExceeded(Collection<Meal> meals, int caloriesPerDay, Predicate<Meal> filter) {
+    public static List<MealWithExceed> getFilteredWithExceeded(Collection<Meal> meals, int caloriesPerDay, Predicate<Meal> filter) {
         Map<LocalDate, Integer> caloriesSumByDate = meals.stream()
                 .collect(
                         Collectors.groupingBy(Meal::getDate, Collectors.summingInt(Meal::getCalories))
