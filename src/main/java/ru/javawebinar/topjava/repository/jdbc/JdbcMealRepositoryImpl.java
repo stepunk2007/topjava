@@ -48,8 +48,8 @@ public class JdbcMealRepositoryImpl implements MealRepository {
             meal.setId(id.intValue());
             return meal;
         }
-        if (namedParameterJdbcTemplate.update("UPDATE meals SET userId = :userId, datetime = :dateTime, description = :description," +
-                "calories=:calories WHERE id=:id", map) == 0) {
+        if (namedParameterJdbcTemplate.update("UPDATE meals SET  datetime = :dateTime, description = :description," +
+                "calories=:calories WHERE id=:id AND user_id = :userId", map) == 0) {
             return null;
         }
         return meal;
@@ -57,23 +57,23 @@ public class JdbcMealRepositoryImpl implements MealRepository {
 
     @Override
     public boolean delete(int id, int userId) {
-        return jdbcTemplate.update("DELETE FROM meals WHERE id=? AND userid =?", id, userId) != 0;
+        return jdbcTemplate.update("DELETE FROM meals WHERE id=? AND user_id =?", id, userId) != 0;
     }
 
     @Override
     public Meal get(int id, int userId) {
-        List<Meal> meals = jdbcTemplate.query("SELECT * FROM meals WHERE id=? AND userid =?", ROW_MAPPER, id, userId);
+        List<Meal> meals = jdbcTemplate.query("SELECT * FROM meals WHERE id=? AND user_id =?", ROW_MAPPER, id, userId);
         return DataAccessUtils.uniqueResult(meals);
     }
 
     @Override
     public List<Meal> getAll(int userId) {
-        return jdbcTemplate.query("SELECT * FROM meals WHERE userid =? ORDER BY dateTime DESC", ROW_MAPPER, userId);
+        return jdbcTemplate.query("SELECT * FROM meals WHERE user_id =? ORDER BY dateTime DESC", ROW_MAPPER, userId);
     }
 
     @Override
     public List<Meal> getBetween(LocalDateTime startDate, LocalDateTime endDate, int userId) {
         return jdbcTemplate.query("SELECT * FROM meals WHERE " +
-                "userid =? AND datetime between ? AND ? ORDER BY dateTime DESC", ROW_MAPPER, userId, Timestamp.valueOf(startDate), Timestamp.valueOf(endDate));
+                "user_id =? AND datetime between ? AND ? ORDER BY dateTime DESC", ROW_MAPPER, userId, Timestamp.valueOf(startDate), Timestamp.valueOf(endDate));
     }
 }
