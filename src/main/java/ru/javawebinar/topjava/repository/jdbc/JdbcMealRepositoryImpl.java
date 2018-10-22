@@ -23,11 +23,11 @@ public class JdbcMealRepositoryImpl implements MealRepository {
 
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
-    private final SimpleJdbcInsert insertUser;
+    private final SimpleJdbcInsert insertMeal;
 
     @Autowired
     public JdbcMealRepositoryImpl(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
-        this.insertUser = new SimpleJdbcInsert(jdbcTemplate)
+        this.insertMeal = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("meals")
                 .usingGeneratedKeyColumns("id");
         this.jdbcTemplate = jdbcTemplate;
@@ -44,7 +44,7 @@ public class JdbcMealRepositoryImpl implements MealRepository {
                 .addValue("calories", meal.getCalories());
 
         if (meal.isNew()) {
-            Number id = insertUser.executeAndReturnKey(map);
+            Number id = insertMeal.executeAndReturnKey(map);
             meal.setId(id.intValue());
             return meal;
         }
