@@ -12,6 +12,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.List;
@@ -48,8 +49,11 @@ public class MealServiceTest {
         service.delete(USER_BREAKFAST_ID, USER_ID);
         int sizeAfterDelete = service.getAll(USER_ID).size();
         Assert.assertEquals(1, sizeBeforeDelete - sizeAfterDelete);
-        assertMatch(service.getAll(USER_ID), USER_DINNER, USER_LUNCH, USER_BREAKFAST_2, USER_BREAKFAST_3);
+        assertMatch(service.getAll(USER_ID), USER_BREAKFAST_3, USER_BREAKFAST_2, USER_DINNER, USER_LUNCH);
+    }
 
+    @Test
+    public void deleteAll() {
         service.delete(ADMIN_BREAKFAST_ID, ADMIN_ID);
         assertMatch(service.getAll(ADMIN_ID));
     }
@@ -59,26 +63,24 @@ public class MealServiceTest {
         service.delete(USER_BREAKFAST_ID, ADMIN_ID);
     }
 
-
     @Test
     public void testGetBetweenDateTimes() throws Exception {
-        List<Meal> betweenDateTimes = service.getBetweenDateTimes(LocalDateTime.of(2018, Month.OCTOBER, 19, 9, 30), LocalDateTime.of(2018, Month.OCTOBER, 19, 10, 30), USER_ID);
-        Assert.assertEquals(1, betweenDateTimes.size());
-        assertMatch(betweenDateTimes, USER_BREAKFAST);
-
-        betweenDateTimes = service.getBetweenDateTimes(LocalDateTime.of(2018, Month.OCTOBER, 19, 9, 30), LocalDateTime.of(2018, Month.OCTOBER, 19, 13, 30), USER_ID);
-        Assert.assertEquals(2, betweenDateTimes.size());
-        assertMatch(betweenDateTimes, USER_BREAKFAST, USER_LUNCH);
-
-        betweenDateTimes = service.getBetweenDateTimes(LocalDateTime.of(2018, Month.OCTOBER, 19, 9, 30), LocalDateTime.of(2018, Month.OCTOBER, 19, 20, 30), USER_ID);
+        List<Meal> betweenDateTimes = service.getBetweenDateTimes(LocalDateTime.of(2018, Month.OCTOBER, 19, 9, 30), LocalDateTime.of(2018, Month.OCTOBER, 19, 20, 30), USER_ID);
         Assert.assertEquals(3, betweenDateTimes.size());
-        assertMatch(betweenDateTimes, USER_BREAKFAST, USER_LUNCH, USER_DINNER);
+        assertMatch(betweenDateTimes, USER_DINNER, USER_LUNCH, USER_BREAKFAST);
+    }
+
+    @Test
+    public void testGetBetweenDates() throws Exception {
+        List<Meal> betweenDateTimes = service.getBetweenDates(LocalDate.of(2018, Month.OCTOBER, 19), LocalDate.of(2018, Month.OCTOBER, 21), USER_ID);
+        Assert.assertEquals(5, betweenDateTimes.size());
+        assertMatch(betweenDateTimes, USER_BREAKFAST_3, USER_BREAKFAST_2, USER_DINNER, USER_LUNCH, USER_BREAKFAST);
     }
 
     @Test
     public void getAll() {
         List<Meal> meals = service.getAll(USER_ID);
-        assertMatch(meals, USER_BREAKFAST, USER_LUNCH, USER_DINNER, USER_BREAKFAST_2, USER_BREAKFAST_3);
+        assertMatch(meals, USER_BREAKFAST_3, USER_BREAKFAST_2, USER_DINNER, USER_LUNCH, USER_BREAKFAST);
     }
 
     @Test
@@ -101,7 +103,7 @@ public class MealServiceTest {
         Meal newMeal = new Meal(null, LocalDateTime.of(2018, Month.OCTOBER, 22, 9, 30), "Завтрак", 500);
         Meal created = service.create(newMeal, USER_ID);
         newMeal.setId(created.getId());
-        assertMatch(service.getAll(USER_ID), USER_BREAKFAST, USER_LUNCH, USER_DINNER, USER_BREAKFAST_2, USER_BREAKFAST_3, newMeal);
+        assertMatch(service.getAll(USER_ID), newMeal, USER_BREAKFAST_3, USER_BREAKFAST_2, USER_DINNER, USER_LUNCH, USER_BREAKFAST);
     }
 
     @Test(expected = DuplicateKeyException.class)

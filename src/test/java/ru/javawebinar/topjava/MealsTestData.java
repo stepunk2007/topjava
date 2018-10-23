@@ -32,6 +32,6 @@ public class MealsTestData {
     }
 
     public static void assertMatch(List<Meal> actual, Meal... expected) {
-        assertThat(actual).usingFieldByFieldElementComparator().containsExactlyInAnyOrder(expected);
+        assertThat(actual).usingFieldByFieldElementComparator().containsExactly(expected);
     }
 }
