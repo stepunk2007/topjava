@@ -34,9 +34,9 @@
           p:dataSource-ref="dataSource"
           p:packagesToScan="ru.javawebinar.**.model">
         <!--p:persistenceUnitName="persistenceUnit">-->
-
         <property name="jpaPropertyMap">
             <map>
+                <entry key="#{T(org.hibernate.cfg.AvailableSettings).ENABLE_LAZY_LOAD_NO_TRANS}" value="true"/>
                 <entry key="#{T(org.hibernate.cfg.AvailableSettings).FORMAT_SQL}" value="${hibernate.format_sql}"/>
                 <entry key="#{T(org.hibernate.cfg.AvailableSettings).USE_SQL_COMMENTS}"
                        value="${hibernate.use_sql_comments}"/>
