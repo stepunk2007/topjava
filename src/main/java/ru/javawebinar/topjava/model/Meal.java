@@ -1,24 +1,23 @@
 package ru.javawebinar.topjava.model;
 
+import org.hibernate.validator.constraints.Range;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @NamedQueries({
-        @NamedQuery(name = Meal.UPDATE, query = "update Meal m set m.dateTime=:dateTime, m.description=:description, m.calories=:calories where m.id=:id and m.user=:user"),
-        @NamedQuery(name = Meal.ALL_SORTED, query = "select m from Meal m where m.user =:user order by m.dateTime desc"),
-        @NamedQuery(name = Meal.GET, query = "select m from Meal m where  m.user =:user and m.id =:id"),
-        @NamedQuery(name = Meal.DELETE, query = "delete from Meal m where m.user =:user and m.id =:id"),
-        @NamedQuery(name = Meal.BETWEEN, query = "select m from Meal m where  m.user =:user and m.dateTime between :startDate and :endDate order by m.dateTime desc")
+        @NamedQuery(name = Meal.ALL_SORTED, query = "select m from Meal m where m.user.id =:userId order by m.dateTime desc"),
+        @NamedQuery(name = Meal.DELETE, query = "delete from Meal m where m.user.id =:userId and m.id =:id"),
+        @NamedQuery(name = Meal.BETWEEN, query = "select m from Meal m where  m.user.id =:userId and m.dateTime between :startDate and :endDate order by m.dateTime desc")
 })
 @Entity
 @Table(name = "meals", uniqueConstraints = @UniqueConstraint(columnNames = {"user_id","date_time"}))
 public class Meal extends AbstractBaseEntity {
-    public static final String UPDATE = "Meal.update";
     public static final String ALL_SORTED = "Meal.getAllSorted";
-    public static final String GET = "Meal.get";
     public static final String DELETE = "Meal.delete";
     public static final String BETWEEN = "Meal.getBetween";
 
@@ -28,10 +27,11 @@ public class Meal extends AbstractBaseEntity {
 
     @Column(name = "description", nullable = false)
     @NotNull
+    @Size(min = 2,max = 120, message = "Размер поля \"Описание\" должен быть между 2 и 120")
     private String description;
 
     @Column(name = "calories", nullable = false)
-    @NotNull
+    @Range(min = 10,max = 5000, message = "Поле \"Калории\" должно быть между 10 и 5000")
     private int calories;
 
     @ManyToOne(fetch = FetchType.LAZY)

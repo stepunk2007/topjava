@@ -1,9 +1,11 @@
 package ru.javawebinar.topjava.service;
 
+import org.junit.AssumptionViolatedException;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.rules.Stopwatch;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
@@ -14,13 +16,15 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.TransactionSystemException;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static org.slf4j.LoggerFactory.getLogger;
 import static ru.javawebinar.topjava.MealTestData.*;
@@ -46,34 +50,36 @@ public class MealServiceTest {
     public static final TimeWatcher testsTimeWatcher = new TimeWatcher();
 
     private static class TimeWatcher extends TestWatcher {
-        private Map<String, Long> methodDuration = new LinkedHashMap<>();
+        private List<String> logInfoList = new LinkedList<>();
 
-        public void setInfo(String methodName, Long duration) {
-            methodDuration.put(methodName, duration);
+        public void logInfo(Description description, String status, Long duration) {
+            String logInfo = String.format("Test %s %s, spent %d microseconds",
+                    description.getMethodName(), status, TimeUnit.NANOSECONDS.toMicros(duration));
+            log.info(logInfo);
+            logInfoList.add(logInfo);
         }
 
         @Override
         protected void finished(Description description) {
-            methodDuration.keySet().stream()
-                    .forEach(m -> log.info("Method {} executed for {} ms.", m, methodDuration.get(m)));
+            logInfoList.forEach(log::info);
         }
     }
 
     @Rule
-    public final TestWatcher methodTimeWatcher = new TestWatcher() {
-        private long startedTime;
-
+    public final Stopwatch methodTimeWatcher = new Stopwatch() {
         @Override
-        protected void starting(Description description) {
-            startedTime = System.currentTimeMillis();
+        protected void failed(long nanos, Throwable e, Description description) {
+            testsTimeWatcher.logInfo(description, "failed", nanos);
         }
 
         @Override
-        protected void finished(Description description) {
-            String methodName = description.getMethodName();
-            Long duration = System.currentTimeMillis() - startedTime;
-            log.info("Method {} executed for {} ms", methodName, duration);
-            testsTimeWatcher.setInfo(description.getMethodName(), duration);
+        protected void skipped(long nanos, AssumptionViolatedException e, Description description) {
+            testsTimeWatcher.logInfo(description, "skipped", nanos);
+        }
+
+        @Override
+        protected void succeeded(long nanos, Description description) {
+            testsTimeWatcher.logInfo(description, "succeeded", nanos);
         }
     };
 
@@ -136,5 +142,21 @@ public class MealServiceTest {
         assertMatch(service.getBetweenDates(
                 LocalDate.of(2015, Month.MAY, 30),
                 LocalDate.of(2015, Month.MAY, 30), USER_ID), MEAL3, MEAL2, MEAL1);
+    }
+
+    @Test
+    public void descriptionNotValid() throws Exception {
+        exception.expect(TransactionSystemException.class);
+        Meal updated = getUpdated();
+        updated.setDescription(null);
+        service.update(updated, USER_ID);
+    }
+
+    @Test
+    public void caloriesNotValid() throws Exception {
+        exception.expect(TransactionSystemException.class);
+        Meal updated = getUpdated();
+        updated.setCalories(5001);
+        service.update(updated, USER_ID);
     }
 }
