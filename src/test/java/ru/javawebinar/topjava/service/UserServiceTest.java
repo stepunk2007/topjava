@@ -32,7 +32,7 @@ import static ru.javawebinar.topjava.UserTestData.*;
 @ActiveProfiles(resolver = ActiveDbProfileResolver.class)
 public abstract class UserServiceTest extends ServiceTest{
     @Autowired
-    private UserService service;
+    protected UserService service;
 
     @Autowired
     private CacheManager cacheManager;

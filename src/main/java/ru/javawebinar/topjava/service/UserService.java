@@ -19,4 +19,8 @@ public interface UserService {
     void update(User user);
 
     List<User> getAll();
+
+    default User getWithMeals(int id) throws NotFoundException {
+        return null;
+    }
 }

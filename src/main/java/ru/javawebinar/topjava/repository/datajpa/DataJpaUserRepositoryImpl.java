@@ -3,6 +3,7 @@ package ru.javawebinar.topjava.repository.datajpa;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.repository.UserRepository;
 
@@ -28,6 +29,14 @@ public class DataJpaUserRepositoryImpl implements UserRepository {
     @Override
     public User get(int id) {
         return crudRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    @Transactional
+    public User getWithMeals(int id) {
+        User user = get(id);
+        user.getMeals().iterator();
+        return user;
     }
 
     @Override
