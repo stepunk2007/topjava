@@ -15,8 +15,8 @@ public interface MealRepository {
     // null if meal do not belong to userId
     Meal get(int id, int userId);
 
-    default Meal getWithUser(int id, int userId) {
-        return null;
+    default Meal getWithUser(int id, int userId) throws UnsupportedOperationException {
+        throw new UnsupportedOperationException("Method not supported");
     }
 
     // ORDERED dateTime desc

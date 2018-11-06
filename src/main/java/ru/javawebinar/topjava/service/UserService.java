@@ -20,7 +20,5 @@ public interface UserService {
 
     List<User> getAll();
 
-    default User getWithMeals(int id) throws NotFoundException {
-        return null;
-    }
+    User getWithMeals(int id);
 }

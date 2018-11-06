@@ -18,7 +18,7 @@ public interface UserRepository {
 
     List<User> getAll();
 
-    default User getWithMeals(int id) {
-        return null;
+    default User getWithMeals(int id) throws UnsupportedOperationException {
+        throw new UnsupportedOperationException("Method not supported");
     }
 }
