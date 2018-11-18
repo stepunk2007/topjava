@@ -5,6 +5,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.service.MealService;
 
@@ -22,40 +23,41 @@ import static ru.javawebinar.topjava.util.DateTimeUtil.parseLocalDate;
 import static ru.javawebinar.topjava.util.DateTimeUtil.parseLocalTime;
 
 @Controller
+@RequestMapping("/meals")
 public class JspMealController extends AbstractMealRestController {
     @Autowired
     public JspMealController(MealService service) {
         super(service);
     }
 
-    @GetMapping("/meals")
+    @GetMapping("")
     public String meals(Model model) {
         model.addAttribute("meals", getAll());
         return "meals";
     }
 
-    @GetMapping("/meal/create")
+    @GetMapping("/create")
     public String createMeals(HttpServletRequest request, Model model) {
         Meal meal = new Meal(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), "", 1000);
         model.addAttribute("meal", meal);
         return "mealForm";
     }
 
-    @GetMapping("/meal/edit")
+    @GetMapping("/edit")
     public String updateMeals(HttpServletRequest request, Model model) {
         Meal meal = get(getId(request));
         model.addAttribute("meal", meal);
         return "mealForm";
     }
 
-    @GetMapping("/meal/delete")
+    @GetMapping("/delete")
     public void deleteMeal(HttpServletRequest request, HttpServletResponse response) throws IOException {
         int id = getId(request);
         delete(id);
-        response.sendRedirect(request.getContextPath()+"/meals");
+        response.sendRedirect(request.getContextPath() + "/meals");
     }
 
-    @PostMapping("filter")
+    @PostMapping("")
     public String filter(HttpServletRequest request, Model model) {
         LocalDate startDate = parseLocalDate(request.getParameter("startDate"));
         LocalDate endDate = parseLocalDate(request.getParameter("endDate"));
@@ -65,21 +67,20 @@ public class JspMealController extends AbstractMealRestController {
         return "meals";
     }
 
-    @PostMapping("/meal/create")
-    public void create(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        create(getMeal(request));
-        response.sendRedirect(request.getContextPath()+"/meals");
-    }
-
-    @PostMapping("/meal/edit")
+    @PostMapping("/edit")
     public void editmeal(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        update(getMeal(request), getId(request));
-        response.sendRedirect(request.getContextPath()+"/meals");
+        Integer id = getId(request);
+        if (id == null) {
+            create(getMeal(request));
+        } else {
+            update(getMeal(request), id);
+        }
+        response.sendRedirect(request.getContextPath() + "/meals");
     }
 
-    private int getId(HttpServletRequest request) {
+    private Integer getId(HttpServletRequest request) {
         String paramId = Objects.requireNonNull(request.getParameter("id"));
-        return Integer.parseInt(paramId);
+        return "".equals(paramId) ? null : Integer.parseInt(paramId);
     }
 
     private Meal getMeal(HttpServletRequest request) throws UnsupportedEncodingException {

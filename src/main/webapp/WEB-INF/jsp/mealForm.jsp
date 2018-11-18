@@ -1,7 +1,11 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
-
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title><spring:message code="${meal.id == null ? 'meal.create' : 'meal.update'}"/></title>
+    <link rel="stylesheet" href="resources/css/style.css">
+</head>
 <html>
 <jsp:include page="fragments/headTag.jsp"/>
 <body>
@@ -9,7 +13,7 @@
     <jsp:include page="fragments/bodyHeader.jsp"/>
     <hr>
     <jsp:useBean id="meal" type="ru.javawebinar.topjava.model.Meal" scope="request"/>
-    <form method="post" action="${meal.id == null ? 'create' : 'edit'}">
+    <form method="post" action="edit">
         <input type="hidden" name="id" value="${meal.id}">
         <dl>
             <dt><spring:message code="meal.date"/></dt>
