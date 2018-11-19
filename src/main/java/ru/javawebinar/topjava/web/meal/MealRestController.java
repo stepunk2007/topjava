@@ -6,8 +6,4 @@ import ru.javawebinar.topjava.service.MealService;
 
 @Controller
 public class MealRestController extends AbstractMealRestController {
-    @Autowired
-    public MealRestController(MealService service) {
-        super(service);
-    }
 }

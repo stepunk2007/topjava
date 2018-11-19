@@ -12,9 +12,7 @@ import ru.javawebinar.topjava.repository.JpaUtil;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import javax.validation.ConstraintViolationException;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static ru.javawebinar.topjava.UserTestData.*;
 
@@ -96,5 +94,14 @@ public abstract class AbstractUserServiceTest extends AbstractServiceTest {
         validateRootCause(() -> service.create(new User(null, "User", "mail@yandex.ru", "  ", Role.ROLE_USER)), ConstraintViolationException.class);
         validateRootCause(() -> service.create(new User(null, "User", "mail@yandex.ru", "password", 9, true, new Date(), Collections.emptySet())), ConstraintViolationException.class);
         validateRootCause(() -> service.create(new User(null, "User", "mail@yandex.ru", "password", 10001, true, new Date(), Collections.emptySet())), ConstraintViolationException.class);
+    }
+    @Test
+    public void updateRoles(){
+        User user = service.get(ADMIN_ID);
+        Set<Role> roles = new HashSet<>();
+        roles.add(Role.ROLE_ADMIN);
+        user.setRoles(roles);
+        service.update(user);
+        assertMatch(service.get(user.getId()),user);
     }
 }
