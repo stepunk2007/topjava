@@ -1,6 +1,7 @@
-package ru.javawebinar.topjava.model.extractors;
+package ru.javawebinar.topjava.extractors;
 
 import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import ru.javawebinar.topjava.model.Role;
 import ru.javawebinar.topjava.model.User;
@@ -16,7 +17,7 @@ public class UserResultSetExtractor implements ResultSetExtractor<List<User>> {
         while (rs.next()) {
             Integer id = rs.getInt("id");
             User user = users.computeIfAbsent(id, v -> createUser(v, rs));
-            HashSet<Role> roles = new HashSet<>(user.getRoles());
+            Set<Role> roles = new HashSet<>(user.getRoles());
             if (rs.getString("role") != null) {
                 roles.add(Role.valueOf(rs.getString("role")));
             }
@@ -28,18 +29,13 @@ public class UserResultSetExtractor implements ResultSetExtractor<List<User>> {
     }
 
     private User createUser(Integer id, ResultSet rs) throws IllegalArgumentException {
-        User user = new User();
-        user.setId(id);
+        User user;
         try {
-            user.setName(rs.getString("name"));
-            user.setEmail(rs.getString("email"));
-            user.setPassword(rs.getString("password"));
-            user.setEnabled(rs.getBoolean("enabled"));
-            user.setCaloriesPerDay(rs.getInt("calories_per_day"));
+            user = BeanPropertyRowMapper.newInstance(User.class).mapRow(rs, 0);
+            user.setRoles(EnumSet.noneOf(Role.class));
         } catch (SQLException e) {
             throw new IllegalArgumentException(e);
         }
-        user.setRoles(new HashSet<>());
         return user;
     }
 }
