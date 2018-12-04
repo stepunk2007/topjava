@@ -72,3 +72,14 @@ function failNoty(jqXHR) {
         layout: "bottomRight"
     }).show();
 }
+
+function filter() {
+    let form = $("#filterForm");
+    $.ajax({
+        type: "GET",
+        url: ajaxUrl+"filter",
+        data: form.serialize()
+    }).done(function (data) {
+        datatableApi.clear().rows.add(data).draw();
+    });
+}
