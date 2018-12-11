@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.to.MealTo;
 import ru.javawebinar.topjava.util.MealsUtil;
-import ru.javawebinar.topjava.web.ErrorHandler;
+import ru.javawebinar.topjava.web.ErrorUtil;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
@@ -26,8 +26,8 @@ public class MealAjaxController extends AbstractMealController {
     }
 
     @GetMapping("/{id}")
-    public MealTo getWithExcess(@PathVariable("id") int id) {
-        return MealsUtil.createWithExcess(super.get(id), false);
+    public Meal getWithExcess(@PathVariable("id") int id) {
+        return super.get(id);
     }
 
     @Override
@@ -40,7 +40,7 @@ public class MealAjaxController extends AbstractMealController {
     @PostMapping
     public ResponseEntity<String> createOrUpdate(@Valid MealTo mealTo, BindingResult result) {
         if (result.hasErrors()) {
-            return new ResponseEntity<>(ErrorHandler.getErrors(result), HttpStatus.UNPROCESSABLE_ENTITY);
+            return ErrorUtil.getErrors(result);
         }
         Meal meal = MealsUtil.createMealFromTo(mealTo);
         if (mealTo.isNew()) {

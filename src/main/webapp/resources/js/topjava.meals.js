@@ -26,13 +26,13 @@ $(function () {
             "info": true,
             "columns": [
                 {
-                    "data": "dateTime"
+                    "data": replaceT
                 },
                 {
                     "data": "description"
                 },
                 {
-                    "data": replaceT
+                    "data": "calories"
                 },
                 {
                     "orderable": false,

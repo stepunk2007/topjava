@@ -1,11 +1,13 @@
 package ru.javawebinar.topjava.web;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 
 import java.util.StringJoiner;
 
-public class ErrorHandler {
-    public static String getErrors(BindingResult result) {
+public class ErrorUtil {
+    public static ResponseEntity getErrors(BindingResult result) {
         StringJoiner joiner = new StringJoiner("<br>");
         result.getFieldErrors().forEach(
                 fe -> {
@@ -17,6 +19,6 @@ public class ErrorHandler {
                         joiner.add(msg);
                     }
                 });
-        return joiner.toString();
+        return new ResponseEntity<>(joiner.toString(), HttpStatus.UNPROCESSABLE_ENTITY);
     }
 }
